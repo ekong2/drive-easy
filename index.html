@@ -5,18 +5,117 @@
 	<title>Drive Easy</title>
 	<link href="http://maxcdn.bootstrapcdn.com/bootswatch/3.3.4/flatly/bootstrap.min.css" type="text/css" rel="stylesheet" />
 	<link href="assets/css/styles.css" type="text/css" rel="stylesheet" />
+	<link rel="stylesheet" href="microphone/microphone.min.css">
 </head>
 <body>
-
+	<center><div id="microphone"></div></center>
+	<!-- <div id="result"></div> -->
+    <div id="info"></div>
+    <div id="error"></div>
+    <div id="demo"></div>
+    <script src="microphone/microphone.min.js"></script>
+    <script src="config.js"></script>
 	<div id="main" class="container">
 
 		<!-- The App will be rendered here -->
-		
 	</div>
+
+	<!-- Wit.ai microphone script-->
+	<script>
+	  var mic = new Wit.Microphone(document.getElementById("microphone"));
+	  var info = function (msg) {
+	    document.getElementById("info").innerHTML = msg;
+	  };
+	  var error = function (msg) {
+	    document.getElementById("error").innerHTML = msg;
+	  };
+	  mic.onready = function () {
+	    info("Microphone is ready to record");
+	  };
+	  mic.onaudiostart = function () {
+	    info("Recording started");
+	    error("");
+	  };
+	  mic.onaudioend = function () {
+	    info("Recording stopped, processing started");
+	  };
+	  mic.onresult = function (intent, entities) {
+	    var r = kv("intent", intent);
+
+	    for (var k in entities) {
+	      var e = entities[k];
+
+	      if (!(e instanceof Array)) {
+	        r += kv(k, e.value);
+	      } else {
+	        for (var i = 0; i < e.length; i++) {
+	          r += kv(k, e[i].value);
+	        }
+	      }
+	    }
+	    // Get the location that was queried
+	    var location = r.slice(r.indexOf("query=") + 6, r.length - 1);
+	    //Check if this is one of the presaved locations
+	    if (r.indexOf("presaved_loc") > 0){
+	    	// Make it home by default
+	    	var idx = location === 'home' ? 0 : location === 'work' ? 1 : location === 'gym' ? 2 : 0;
+	    	document.getElementById("address").value = JSON.parse(localStorage.favorites)[idx].address;
+	    	// document.getElementById("geocoding_form").submit();
+	    } else if (r.indexOf("find_nearest_x") > 0){
+	    	document.getElementById("address").value = location;
+	    	// document.getElementById("geocoding_form").submit();
+	    } else {
+	    	document.getElementById('error').innerHTML = "I did not recognize your command, sorry.";
+	    }
+	    // document.getElementById("result").innerHTML = r;
+	  };
+	  mic.onerror = function (err) {
+	    error("Error: " + err);
+	  };
+	  mic.onconnecting = function () {
+	    info("Microphone is connecting");
+	  };
+	  mic.ondisconnected = function () {
+	    info("Microphone is not connected");
+	  };
+
+	  mic.connect(clientKey);
+	  // mic.start();
+	  // mic.stop();
+
+	  function kv (k, v) {
+	    if (toString.call(v) !== "[object String]") {
+	      v = JSON.stringify(v);
+	    }
+	    return k + "=" + v + "\n";
+	  };
+
+	  // Get location of the user
+	  function getLocation() {
+	      if (navigator.geolocation) {
+	          navigator.geolocation.getCurrentPosition(savePosition);
+	      } else {
+	          document.getElementById('demo').innerHTML = "Geolocation is not supported by this browser.";
+	      }
+	  };
+
+	  //Save the location to localStorage
+	  function savePosition(position) {
+	  	localStorage.setItem('latitude', position.coords.latitude);
+	  	localStorage.setItem('longitude', position.coords.longitude);
+	  };
+
+	  getLocation();
+
+	</script>
 
 	<!-- Including the Google Maps API and the GMaps library -->
 	<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/gmaps.js/0.4.12/gmaps.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+	<!-- Including Wit.ai microphone.js file-->
+	<script src="microphone/microphone.min.js"></script>
 
 	<!-- Our compiled JavaScript source file -->
 	<script src="./compiled.js"></script>

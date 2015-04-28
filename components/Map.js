@@ -31,12 +31,29 @@ var Map = React.createClass({
 			lng: this.props.lng
 		});
 
-		// Adding a marker to the location we are showing
+		map.addMarker({
+			lat:localStorage.getItem('latitude'),
+			lng:localStorage.getItem('longitude')
+		})
 		
+		// Adding a marker to the location we are showing
 		map.addMarker({
 			lat: this.props.lat,
 			lng: this.props.lng
 		});
+
+		// Drawing the route from origin to destination
+		map.drawRoute({
+		  origin: [localStorage.getItem('latitude'), localStorage.getItem('longitude')],
+		  destination: [this.props.lat, this.props.lng],
+		  travelMode: 'driving',
+		  strokeColor: '#131540',
+		  strokeOpacity: 0.6,
+		  strokeWeight: 6
+		});
+
+		//adjusting the zoom on the map
+		map.fitZoom();
 	},
 
 	render(){

@@ -1,7 +1,6 @@
 var React = require('react');
 
 var Search = require('./Search');
-var Microphone = require('./Microphone');
 var Map = require('./Map');
 var CurrentLocation = require('./CurrentLocation');
 var LocationList = require('./LocationList');
@@ -14,6 +13,9 @@ var App = React.createClass({
 		// Extract the favorite locations from local storage
 
 		var favorites = [];
+		var pLocation = {};
+		pLocation.latitude = localStorage.getItem('latitude');
+		pLocation.longitude = localStorage.getItem('longitude');
 
 		if(localStorage.favorites){
 			favorites = JSON.parse(localStorage.favorites);
@@ -23,10 +25,10 @@ var App = React.createClass({
 
 		return {
 			favorites: favorites,
-			currentAddress: 'Hack Reactor, San Francisco',
+			currentAddress: 'My Current Location',
 			mapCoordinates: {
-				lat: 37.783724,
-				lng: -122.408978
+				lat: pLocation.latitude,
+				lng: pLocation.longitude
 			}
 		};
 	},
@@ -46,16 +48,18 @@ var App = React.createClass({
 
 		var favorites = this.state.favorites;
 
-		favorites.push({
-			address: address,
-			timestamp: Date.now()
-		});
+		if (favorites.length < 3){
+			favorites.push({
+				address: address,
+				timestamp: Date.now()
+			});
 
-		this.setState({
-			favorites: favorites
-		});
+			this.setState({
+				favorites: favorites
+			});
 
-		localStorage.favorites = JSON.stringify(favorites);
+			localStorage.favorites = JSON.stringify(favorites);
+		}
 	},
 
 	removeFromFavorites(address){
@@ -138,8 +142,6 @@ var App = React.createClass({
 				<h1>Drive Easy</h1>
 
 				<Search onSearch={this.searchForAddress} />
-
-				<Microphone onSearch={this.searchForAddress} />
 
 				<Map lat={this.state.mapCoordinates.lat} lng={this.state.mapCoordinates.lng} />
 
