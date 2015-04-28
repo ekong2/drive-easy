@@ -15,9 +15,6 @@ var Search = React.createClass({
 		event.preventDefault();
 		
 		// When the form is submitted, call the onSearch callback that is passed to the component
-		if(event.nativeEvent) {
-			console.log('yeaaaahhh');
-		}
 		this.props.onSearch(this.state.value);
 
 		// Unfocus the text input field
