@@ -1,5 +1,6 @@
 # drive-easy
 Hands free navigation with Wit.ai and React.js
+[Proof of Concept](http://drive-easy.herokuapp.com/)
 
 ### To build
 Run the commands as follows
